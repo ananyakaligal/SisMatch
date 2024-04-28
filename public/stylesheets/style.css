@@ -1,10 +1,37 @@
+
+@import url(https://fonts.googleapis.com/css?family=Righteous);
 body{
+  background-image: url('https://images.unsplash.com/photo-1460411794035-42aac080490a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); /* Specify the URL of your background image */
     font-family: 'Quicksand', sans-serif;
+    background-size: cover; /* Cover the entire element with the background image */
+  background-repeat: no-repeat; /* Prevent the background image from repeating */
+  min-height: 100vh;
 }
 
-h2{
-    color: #ee714e;
-    }
+@keyframes glitter {
+  0% { text-shadow: 0 0 10px #fff; }
+  10% { text-shadow: 1px 1px 10px #ffcc00, -1px -1px 10px #ffcc00; }
+  20% { text-shadow: 2px 2px 10px #ffcc00, -2px -2px 10px #ffcc00; }
+  30% { text-shadow: 3px 3px 10px #ffcc00, -3px -3px 10px #ffcc00; }
+  40% { text-shadow: 4px 4px 10px #ffcc00, -4px -4px 10px #ffcc00; }
+  50% { text-shadow: 5px 5px 10px #ffcc00, -5px -5px 10px #ffcc00; }
+  60% { text-shadow: 6px 6px 10px #ffcc00, -6px -6px 10px #ffcc00; }
+  70% { text-shadow: 7px 7px 10px #ffcc00, -7px -7px 10px #ffcc00; }
+  80% { text-shadow: 8px 8px 10px #ffcc00, -8px -8px 10px #ffcc00; }
+  90% { text-shadow: 9px 9px 10px #ffcc00, -9px -9px 10px #ffcc00; }
+  100% { text-shadow: 10px 10px 10px #ffcc00, -10px -10px 10px #ffcc00; }
+}
+
+.just_start p {
+  color: rgb(171, 97, 198); /* Pink text color */
+  font-family: 'Righteous', serif; /* Use Righteous font */
+  font-size: 5em; /* Adjust font size as needed */
+  font-weight: bold; /* Make the text bold */
+  text-shadow: .03em .03em 0 rgb(153, 63, 186); /* Add text shadow */
+  animation: shad-anim 15s linear infinite; /* Apply shadow animation */
+  animation: glitter 1s infinite; /* Apply the glitter animation */
+}
+
 
 #realresults{
     color: #ee714e;
@@ -12,40 +39,97 @@ h2{
 
 
 .just_start input[type="text"] {
-    width: 400px;
-    margin-top: 30px;
-    padding: 0.5em 0;
-    color: #ee714e;
-    border:none;
-    border-bottom: 2px solid #ee714e;
-    border-radius: 0;
-    background: #f0f0f0;
-    font-weight: 400;
-    font-size: 20px;
-    text-align: center;
-
+  width: 330px; /* Increase the width */
+  height: 40px; /* Increase the height */
+  margin-top: 20px;
+  padding: 0.5em 0;
+  color: black; /* Darken the text color */
+  border: 2px solid #bc1a50; /* Entire border color */
+  border-radius: 0;
+  background: #f0f0f0;
+  font-weight: bold; /* Make the text a little more bold */
+  font-size: 22px; /* Increase font size */
+  text-align: center;
 }
-.btn-start{
-    background: #ee714e;
-    color: #fff ;
-    border: 1px solid #ee714e;
-    padding: 10px;
-    margin-top: 70px;
-    }
 
+
+.btn-start {
+  background: #ff69b4; /* Pink background color */
+  color: #fff; /* White text color */
+  border: none;
+  padding: 10px;
+  margin-top: 50px;
+  position: relative; /* Position relative for pseudo-elements */
+  background-position: center; /* Center the background image */
+  background-repeat: no-repeat; /* Prevent the background image from repeating */
+}
+
+/* Add stickers as background images */
+.btn-start::before,
+.btn-start::after {
+  content: '';
+  position: absolute;
+  width: 40px; /* Adjust the size of the stickers */
+  height: 40px; /* Adjust the size of the stickers */
+  top: 60%; /* Position stickers vertically centered */
+  background-repeat: no-repeat; /* Prevent the stickers from repeating */
+  background-size: contain; /* Scale the stickers to fit */
+}
+
+/* Sticker on the left side */
+.btn-start::before {
+  left: 5px; /* Position sticker on the left side */
+  background-image: url('https://cdn-icons-png.flaticon.com/512/6240/6240552.png'); /* URL of left sticker image */
+}
+
+/* Sticker on the right side */
+.btn-start::after {
+  right: 5px; /* Position sticker on the right side */
+  background-image: url('https://cdn-icons-png.flaticon.com/512/6240/6240552.png'); /* URL of right sticker image */
+}
+
+/* 
 .just_start, .started, .intermediate,.rules{
     background-color: #fff;
-    }
+    } */
+    .glitter-text {
+      color: #d21077; /* New text color */
+  font-weight: bold;
+  animation: glitter 1s infinite;
+  margin-bottom: 50px;
+  font-size: 60px; /* New font size */
+  font-family: Arial, sans-serif; /* Specify the font family */
+  }
+  
+  .hack-container {
+    background-color: rgba(183, 64, 124, 0.3); /* Translucent pink background */
+    padding: 10px; /* Add padding to create space inside the box */
+    border-radius: 10px; /* Add border radius for rounded corners */
+    width: 40%; /* Set the width of the container */
+    margin: 0 auto; /* Center the container horizontally */
+    margin-bottom: 40px; /* Add space between each hack container */
+}
 
-.rules{
-    width: 700px;
-    position: absolute;
-    margin: 0px auto;
-    top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  margin-top: 150px;
+.hack-text {
+    font-size: 8px; /* Set the font size for both "Did you know?" and hack text */
+    color: #2229b3; /* Pink text color for "Did you know?" text */
+    font-family: 'Comic Sans MS', cursive; /* Cute font style */
+    margin-bottom: 5px; /* Add space between "Did you know?" and life hack */
+}
+
+.hack span {
+    color: #1c2cba; /* Different text color for the life hack text */
+    font-style: italic; /* Apply italic style to the life hack text */
+}
+
+.countdownText p{
+  color: rgb(171, 97, 198); /* Pink text color */
+  font-family: 'Righteous', serif; /* Use Righteous font */
+  font-size: 5em; /* Adjust font size as needed */
+  font-weight: bold; /* Make the text bold */
+  text-shadow: .03em .03em 0 rgb(153, 63, 186); /* Add text shadow */
+  animation: shad-anim 15s linear infinite; /* Apply shadow animation */
+  animation: glitter 1s infinite; /* Apply the glitter animation */
 }
 
 .started, .current_res_c, .current_res_w{
@@ -71,29 +155,31 @@ h2{
     padding: 10px;
 }
 
+.choices {
+  text-align: center;
+}
+.choices button.active {
+  background-color: orange;
+}
 
-.choices button{
-    background: #ffffff;
-    color: #ee714e;
-    border: 1px solid #ee714e;
-    border-radius: 10px;
-    font-size: 17px;
-    padding: 10px;
-    min-width:200px; 
-    min-height:50px;
-    margin-top: 50px;
-    }
+.choices button {
+  padding: 20px;
+  margin: 13px;
+  margin-top: 50px;
+  background-color: #deb4ec;
+  border: 2px solid #333; /* Darken the border */
+  border-radius: 15px; /* Round the border */
+  cursor: pointer;
+  font-weight: bold; /* Make the text bold */
+  font-style: italic; /* Make the text italic */
+  font-size: 24px; /* Set the font size */
+}
 
 .choices button:hover {
-    box-shadow: none ;
-    background: #EE714E ;
-    color: #ffffff ;
-    }
-
-
-
-
-
+  box-shadow: none;
+  background: #ab7aec;
+  color: #ffffff;
+}
 
 
 .loading-page {
@@ -138,4 +224,77 @@ h2{
   width: 0px;
   overflow: hidden;
   color: #f60d54;
+}
+
+.navigation {
+  display: flex; /* Use flexbox layout */
+  justify-content: center; /* Center the items horizontally */
+}
+
+.navigation button {
+  display: inline-block;
+  padding: 7px 18px;
+  margin: 20px;;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  background-color: #ff5252;
+  border: 2px solid #000;
+  border-radius: 10px;
+  box-shadow: 5px 5px 0px #000;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.navigation button:hover {
+  background-color: #fff;
+  color: #ff5252;
+  border: 2px solid #ff5252;
+  box-shadow: 5px 5px 0px #ff5252;
+}
+
+.navigation:active {
+  box-shadow: none;
+  transform: translateY(4px);
+}
+@keyframes shad-anim {
+  0% {background-position: 0 0}
+  0% {background-position: 100% -100%}
+  }
+
+#realtime p {
+  color: rgb(171, 97, 198); /* Pink text color */
+  font-family: 'Righteous', serif; /* Use Righteous font */
+  font-size: 6em; /* Adjust font size as needed */
+  font-weight: bold; /* Make the text bold */
+  text-shadow: .03em .03em 0 rgb(153, 63, 186); /* Add text shadow */
+  animation: shad-anim 15s linear infinite; /* Apply shadow animation */
+  padding: 10px;
+  margin-top: 40px;
+  animation: glitter 1s infinite; /* Apply the glitter animation */
+}
+
+.synergy-score {
+  font-family: 'Righteous', serif; /* Use Righteous font */
+  font-size: 6em; /* Adjust font size as needed */
+  color: #333; /* Change color as needed */
+  margin-top: 20px; /* Add margin-top for spacing */
+  animation: shad-anim 15s linear infinite; /* Apply shadow animation */
+  animation: glitter 1s infinite; /* Apply the glitter animation */
+}
+
+#conversation2 p{
+  color: rgb(165, 85, 194); /* Pink text color */
+  font-family: 'Righteous', serif; /* Use Righteous font */
+  font-size: 2em; /* Adjust font size as needed */
+  font-weight: bold; /* Make the text bold */
+  text-shadow: .03em .03em 0 rgb(153, 63, 186); /* Add text shadow */
+  animation: shad-anim 15s linear infinite; /* Apply shadow animation */
+  animation: glitter 1s infinite; /* Apply the glitter animation */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: 100vh; /* Make it full height of the viewport */
 }

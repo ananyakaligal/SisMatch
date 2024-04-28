@@ -1,8 +1,8 @@
 {"questions":[
-	{"question": "Which is the capital of india?", "choices": ["New delhi", "Mumbai", "Banglore", "Mysore"], "correctAnswer":0},
-	{"question": "Total number of states in India", "choices": ["27", "28", "29", "30"], "correctAnswer":2},
-	{"question": "Current President of India?", "choices": ["Pranab Mukherjee", "Pratibha Patil", "Narendra modi", "Manmohan singh"], "correctAnswer":0},
-	{"question": "Current Prime Minister of India?", "choices": ["Pratibha Patil", "Pranab Mukherjee", "Manmohan singh", "Narendra modi"], "correctAnswer":3}
+	{"question": "Favorite Fitness Activity", "choices": ["Dancing","Yoga","Swimming","Gym"]},
+	{"question": "Favorite Hobbies", "choices": ["Painting", "Photography", "Cooking", "Shopping"]},
+	{"question": "Style of Music", "choices": ["Pop", "Hip-hop", "Classical", "Alternative"]},
+	{"question": "Food Style", "choices": ["Italian", "Mexican", "Japanese", "Thai"]}
 ]}
 
 

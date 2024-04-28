@@ -1,93 +1,125 @@
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
-var io = require('socket.io').listen(server);
+var io = require('socket.io')(server);
 var fs = require('fs');
 
-app.use('/', express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/public'));
 
 var usernames = {};
-var pairCount = 0, id, clientsno, pgmstart=0,varCounter;
-var scores = {};
+var pairCount = 0, playersSubmitted = 0, varCounter;
+var rooms = {};
 
-server.listen(4444);
-console.log("Listening to 4444")
-console.log("Connection Established !")
+server.listen(5555);
+console.log("Listening to port 5555");
 
-//Route
-app.get('/',function (req,res){
-	res.sendFile(__dirname + '/index.html');
+// Route
+app.get('/', function (req, res) {
+    res.sendFile(__dirname + '/index.html');
 });
 
-io.sockets.on('connection', function(socket){
-	console.log("New Client Arrived!");
+io.sockets.on('connection', function (socket) {
+    console.log("New client connected!");
 
-	socket.on('addClient', function(username){
-		socket.username = username;
-		usernames[username] = username;
-		scores[socket.username] = 0;
-		varCounter = 0
-		//var id = Math.round((Math.random() * 1000000));
-		pairCount++;
-		if(pairCount === 1 || pairCount >=3){
-			id = Math.round((Math.random() * 1000000));
-			socket.room = id;
-			pairCount = 1;
-			console.log(pairCount + " " + id);
-			socket.join(id);
-			pgmstart = 1;
-		} else if (pairCount === 2){
-        	console.log(pairCount + " " + id);
-        	socket.join(id);
-        	pgmstart = 2;
-    	}
-		
-		console.log(username + " joined to "+ id);
+    socket.on('addClient', function (username, password) {
+        var room = rooms[password];
+        socket.username = username;
+        socket.roomPassword = password;
+        usernames[username] = { id: socket.id, answers: {} }; // Initialize answers for each player
+        varCounter = 0;
+        pairCount++;
+        if (!room) {
+            room = {
+                password: password,
+                players: [socket],
+                usernames: [username],
+                currentQuestionIndex: 0 // Initialize current question index
+            };
+            rooms[password] = room;
+            varCounter = 1;
+            socket.join(password);
+            socket.emit('updatechat', 'SERVER', 'You are connected! <br> Waiting for your sister to connect...', password);
+        } else {
+            room.players.push(socket);
+            room.usernames.push(username);
+            socket.join(password);
+            varCounter = 2;
+            room.players.forEach(function (player) {
+                if (player !== socket) {
+                    console.log("client 2 joined the room");
+                    console.log(room.players.length);
+                }
+            });
 
-		socket.emit('updatechat', 'SERVER', 'You are connected! <br> Waiting for other player to connect...',id);
-		
-		socket.broadcast.to(id).emit('updatechat', 'SERVER', username + ' has joined to this game !',id);
+            if (room.players.length === 2) {
+                startGame(room);
+            }
+        }
 
-		
-		if(pgmstart ==2){
-			fs.readFile(__dirname + "/lib/questions.json", "Utf-8", function(err, data){
-				jsoncontent = JSON.parse(data);
-				io.sockets.in(id).emit('sendQuestions',jsoncontent);
-				
-			});
-		console.log("Player2");
-			//io.sockets.in(id).emit('game', "haaaaai");
-		} else {
-			console.log("Player1");
+        console.log(username + " joined to " + password);
+    });
 
-		}
+    function startGame(room) {
+        console.log('hi, im getting called');
+        fs.readFile(__dirname + "/lib/questions.json", "utf-8", function (err, data) {
+            if (err) {
+                console.error("Error reading questions.json:", err);
+                return; // Return early to prevent further execution
+            }
+            var jsoncontent = JSON.parse(data);
+            io.sockets.in(room.password).emit('sendQuestions', jsoncontent);
+        });
+    }
+    
 
+    // Handle the 'playerSubmittedAnswers' event
+    socket.on('playerSubmittedAnswers', function (answers) {
+        // Increment the count of players who have submitted their answers
+        playersSubmitted++;
 
+        // Get the player's username
+        var player = socket.username;
 
+        // Store the submitted answers for the respective player
+        usernames[player].answers = answers;
 
-  
-	});
+        // Check if all players have submitted their answers
+        if (playersSubmitted === 2) {
+            console.log("Both players submitted answers");
 
+            // Save the answers to JSON file
+            savePlayerAnswers();
 
-	socket.on('result', function (usr,rst) {
-		
-				io.sockets.in(rst).emit('viewresult',usr);
-				//io.in(id).emit('viewresult',usr);
-				//console.log("Mark = "+usr);
-				//console.log(id);	
+            // Emit an event to notify clients that both players have submitted their answers
+            io.sockets.in(socket.roomPassword).emit('proceedToFinalResults');
 
-	});
+            // Reset playersSubmitted count for the next round
+            playersSubmitted = 0;
+        } else {
+            // Emit an event to notify clients that they are waiting for the other player to submit
+            // Check if the current player is player 1 or player 2
+            if (varCounter === 1) {
+                socket.broadcast.to(socket.roomPassword).emit('updatechat2', 'SERVER', 'Waiting for the other player to finish answering...', socket.roomPassword);
+            } else {
+                socket.emit('updatechat2', 'SERVER', 'Waiting for the other player to finish answering...', socket.roomPassword);
+            }
+        }
+    });
 
+    // Function to save player answers to JSON file
+    function savePlayerAnswers() {
+        fs.writeFile("public/answers.json", JSON.stringify(usernames), function (err) {
+            if (err) throw err;
+            console.log('Player answers saved to answers.json');
+        });
+    }
 
-	
-	
-	socket.on('disconnect', function(){
-		
-		delete usernames[socket.username];
-		io.sockets.emit('updateusers', usernames);
-		//io.sockets.in(id).emit('updatechat', 'SERVER', socket.username + ' has disconnected',id);
-		socket.leave(socket.room);
-	});
+    socket.on('disconnect', function () {
+        if (socket.username) {
+            delete usernames[socket.username];
+        }
+        io.sockets.emit('updateusers', usernames);
+        socket.leave(socket.room);
+    });
+    
 });
-
-

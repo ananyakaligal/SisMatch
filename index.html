@@ -1,269 +1,415 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Real time Quiz</title>
-	<link rel='stylesheet' href='/stylesheets/bootstrap.min.css' />
-	<link rel="stylesheet" href="/stylesheets/style.css" />
-	<link href='https://fonts.googleapis.com/css?family=Quicksand' rel='stylesheet' type='text/css'>
-	<script src="/socket.io/socket.io.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
-	<script>
-	var socket = io.connect("http://localhost:4444");
-	var i,username,j=0,myscore=0,otherscore=0,finalresults,ti,user_id;
-	
-	socket.on('updatechat', function (username, data,id) {
-		$('#conversation').append('<br>' + data + '<br>');
-		user_id = id;
+    <title>Real time Quiz</title>
+    <link rel='stylesheet' href='/stylesheets/bootstrap.min.css' />
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link href='https://fonts.googleapis.com/css?family=Quicksand' rel='stylesheet' type='text/css'>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <script src="//d3js.org/d3.v3.min.js"></script> 
+    
+    <script>
+        var socket = io.connect("http://localhost:5555");
+        var username, user_id, userAnswers = {};
+        var questionsCount = 0;
+        var currentQuestionIndex = 0;
+        var data; // Declare data variable globally
+        var siscode;
+        // Array of girly life hacks
+        var girlyLifeHacks = [
+        "Mixing a little bit of foundation with moisturizer creates a tinted moisturizer for lighter coverage.",
+        "Storing your nail polish in the fridge prevents it from thickening and becoming gloopy.",
+        "Applying perfume to your pulse points and behind your ears makes it last longer.",
+        "Using a white eyeliner pencil as a base makes your eyeshadow colors pop.",
+        "Applying translucent powder between coats of mascara adds volume and length.",
+        "Spritzing your hairbrush with perfume before brushing gives a subtle and long-lasting fragrance.",
+        "Baby oil effectively removes stubborn eye makeup, such as waterproof mascara.",
+        "Mixing sugar with your lip balm creates a DIY lip scrub for smooth and soft lips.",
+        "Applying highlighter to the inner corners of your eyes makes them appear brighter and more awake.",
+        "Dusting translucent powder over your lipstick prevents smudging."
+    ];
+    
 
-	});
+// Function to select a random girly life hack
+function getRandomGirlyLifeHack() {
+    var index = Math.floor(Math.random() * girlyLifeHacks.length);
+    console.log(girlyLifeHacks[index]);
+    return girlyLifeHacks[index];
+}
 
-	socket.on('game', function (data) {
-			$('#realtime').append('<b>'+ data + '<br>' );
-	});
-
-	function doFunction(){
-		$(".rules").fadeIn();
-	}
-
-	socket.on('sendQuestions', function(data){
-		$(".intermediate").fadeOut('slow');
-
-		doFunction();
-		
-		i=0;
-
-		ti = setInterval(function(){
-		$(".rules").fadeOut();
-		$(".started").fadeIn('slow');
-		$(".loading-page").fadeIn('slow');
-		$("#realresults").fadeIn('slow');
-
-		if(i < 4) {		
-		j=0;j++;
-		$('#qst').text(data.questions[i].question);
-		$('#btn1').attr('value', 0).text(data.questions[i].choices[0]);
-		$('#btn2').attr('value', 1).text(data.questions[i].choices[1]);
-		$('#btn3').attr('value', 2).text(data.questions[i].choices[2]);
-		$('#btn4').attr('value', 3).text(data.questions[i].choices[3]);
-
-
-		//timer
-		$(document).ready(function() {
-		  
-			  var counter = 0;
-			  var c = 1;
-			  var k = setInterval(function(){
-		      $(".loading-page .counter h3").html(c + "sec");
-		      $(".loading-page .counter hr").css("width", (c*10) + "%");
-		  
-			    counter++;
-			    c++;
-			      
-			    if(counter == 10) {
-			        clearInterval(k);
-
-			    }
-		  }, 1000);
-		});
-		//timer
-
-		$("#realtime button").removeClass( "btn disabled" );
-		$("#realtime button").prop('disabled', false);
-		$("#realtime button").click(function() {
-			$("#realtime button").addClass( "btn disabled" );
-    			$("#realtime button").prop('disabled', true);
-    			var givenAns = this.value;
-    			var correctAns = data.questions[i-1].correctAnswer; 
-    			var response = (givenAns == correctAns); 
-    			if(response){
-    				if(j==1){
-    				socket.emit('result',username,user_id);
-    				console.log("correct ans");
-    				console.log(username);
-    				console.log("value of inner j: "+ j)
-    				$('.current_res_c').fadeIn().delay(800).fadeOut(); j++;}
-    		
-    			}else {
-    				if(j==1){
-    				$('.current_res_w').fadeIn().delay(800).fadeOut();j++;}
-    			}
-		});
-
-
-	    }i++;
-
-		if(i==5){
-				clearInterval(ti);
-				$(".started").fadeOut('slow');
-				$(".loading-page").fadeOut();
-				$("#finalresult_show").fadeIn('slow');
-			}
-
-
-		}, 10000);
-
-		
-
-	});
-
-	socket.on('viewresult',function(usr){
-		if(usr == username){
-				myscore+=10;
-				$("#myresult").text(myscore);
-
-		}
-		else{
-			otherscore+=10;
-				$("#otherresult").text(otherscore);
-		}
-
-		if(myscore>otherscore){
-			$("#finalresult").text("You Win!");
-			//finalresults=0;
-			//console.log("final winner");
-		} else if(myscore<otherscore){
-			$("#finalresult").text("You Lose..");
-			//finalresults=1;
-			//console.log("final loser");
-		} else{
-			//finalresults=2;
-			$("#finalresult").text("Tie!");
-		}
-
-	});
-
-
-	$(document).ready(function(){
-        $('#btnJoin').click(function(){
-          $(".just_start").fadeOut();
-          username = $("#input_user").val();
-          if(username !=''){
-            socket.emit('addClient', username);
-          } else {
-            alert("USERNAME PLEASE!");
-            window.location="http://localhost:4444";
-          }
+        socket.on('updatechat', function (username, data, input_password) {
+            $('#conversation').append('<div class="glitter-text">' + data + '</div>');
+    var randomGirlyLifeHack = getRandomGirlyLifeHack();
+    $('#conversation').append('<div class="hack-container"><div class="hack"><p>Did you know?<p></div><span>' + randomGirlyLifeHack + '</span></div>');
+    siscode = input_password;
         });
-      });
+
+        socket.on('updatechat2', function (username, data, id) {
+            if (id === siscode) {
+                $('#conversation2').append('<br><p>' + data + '<p><br>');
+            }
+        });
+
+        socket.on('updatechat3', function (username, data, id) {
+            if (id === siscode) {
+                $('#conversation2').append('<br><p>' + data + '<p><br>');
+            }
+        });
+
+        socket.on('game', function (data) {
+            $('#realtime').append('<b>' + data + '<br>');
+        });
+
+        socket.on('sendQuestions', function (questionsData) {
+            data = questionsData; // Assign questionsData to the global data variable
+            $(".intermediate").fadeOut('slow');
+            questionsCount = data.questions.length;
+            displayQuestion(currentQuestionIndex);
+        });
+         
+        // Define intersection function
+        function intersection(arr1, arr2) {
+            const common = arr1.filter(value => arr2.includes(value));
+            const remainingA = arr1.filter(value => !common.includes(value));
+            const remainingB = arr2.filter(value => !common.includes(value));
+            return { common, remainingA, remainingB };
+        }
+
+        function displayQuestion(index) {
+            $(".rules").fadeOut();
+            $(".started").fadeIn('slow');
+
+            $('#qst').text(data.questions[index].question);
+
+            // Displaying answer options
+            var choices = data.questions[index].choices;
+            var optionsHTML = '';
+            for (var i = 0; i < choices.length; i++) {
+                optionsHTML += '<button class="option" data-value="' + choices[i] + '">' + choices[i] + '</button>';
+            }
+            $('.choices').html(optionsHTML);
+
+            // Show/hide navigation buttons based on question index
+            if (index === 0) {
+                $('#prevBtn').hide();
+                $('#nextBtn').show();
+            } else if (index === questionsCount - 1) {
+                $('#prevBtn').show();
+                $('#nextBtn').hide();
+                $('#submitBtn').show(); // Display submit button for the last question
+            } else {
+                $('#prevBtn').show();
+                $('#nextBtn').show();
+                $('#submitBtn').hide(); // Hide submit button for other questions
+            }
+
+            // Highlight selected option
+            $('.option').removeClass('active');
+            if (userAnswers[index]) {
+                $('.option[data-value="' + userAnswers[index] + '"]').addClass('active');
+            }
+
+            // Click event handler for choice buttons
+            $(".option").click(function () {
+                var givenAns = $(this).data('value'); // Get the value of the clicked button (answer)
+                userAnswers[index] = givenAns; // Store the answer for the current question
+                $('.option').removeClass('active');
+                $(this).addClass('active');
+            });
+        }
+
+        $(document).ready(function () {
+            $('#btnJoin').click(function () {
+                $(".just_start").fadeOut();
+                username = $("#input_user").val();
+                var siscode=$("#input_password").val();
+                if (username != '' && siscode!='') {
+                    socket.emit('addClient', username,siscode);
+                    socket.emit('')
+                } else {
+                    alert("USERNAME AND SISTER SUITE NUMBER REQUIRED!r");
+                    window.location = "http://localhost:5555";
+                }
+            });
+
+            $('#nextBtn').click(function () {
+                if (currentQuestionIndex < questionsCount - 1) {
+                    currentQuestionIndex++;
+                    displayQuestion(currentQuestionIndex);
+                }
+            });
+
+            $('#prevBtn').click(function () {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    displayQuestion(currentQuestionIndex);
+                }
+            });
+
+            $('#submitBtn').click(function () {
+                if (!allQuestionsAnswered()) {
+                    // If not all questions are answered, display an alert
+                    alert("Please answer all questions before submitting!");
+                    console.log("not submitted all the naswers")
+                    return;
+                }
+            
+                // Notify the server that the current player has submitted their answers
+                $(".row").fadeOut();
+                console.log("Emitting playerSubmittedAnswers event"); // Add a console log to debug
+                // Inside 'submitBtn' click event handler
+socket.emit('playerSubmittedAnswers', { username: username, answers: userAnswers });
+
+            });
+        });
+            
+
+            // Function to check if all questions are answered
+            function allQuestionsAnswered() {
+                // Check if all questions are answered
+                for (var i = 0; i < questionsCount; i++) {
+                    if (!userAnswers[i]) {
+                        return false; // Return false if any question is unanswered
+                    }
+                }
+                return true; // Return true if all questions are answered
+            }
+
+            // Event listener for 'proceedToFinalResults' event
+socket.on('proceedToFinalResults', function () {
+    // Hide the waiting message and proceed to final results
+    $(".intermediate2").fadeOut('slow');
+    $('#finalresult_show').show();
+    console.log("im being called, cleint");
+
+    // Read the answers from JSON file
+    d3.json("./answers.json", function(error, answersData) {
+        console.log("loaded")
+        if (error) {
+            console.error("Error loading answers.json:", error);
+        }
+        else {
+            // Arrays to store player answers
+            var answersSetA = [];
+            var answersSetB = [];
+            var playerAnswers=[];
+            
+            // Iterate over each player entry in the JSON object
+            for (var playerKey in answersData) {
+                if (answersData.hasOwnProperty(playerKey)) {
+                    var playerAnswers = Object.values(answersData[playerKey].answers.answers);
+                    if (answersSetA.length === 0) {
+                        answersSetA = playerAnswers; // Store the first player's answers in answersSetA
+                        // Log player 1 answers
+                        console.log("Player 1 Answers:", answersSetA);
+                    } else {
+                        answersSetB = playerAnswers; // Store subsequent player's answers in answersSetB
+                         // Log player 2 answers
+                        console.log("Player 2 Answers:", answersSetB);
+                    }
+                }
+            }
+            
+            // Log player 1 answers
+            console.log("Player 1 Answers:", answersSetA);
+            
+            // Log player 2 answers
+            console.log("Player 2 Answers:", answersSetB);
+                        
+
+            // Create Set C with elements common to Set A and Set B
+            var intersectionResult = intersection(answersSetA, answersSetB);
+            var answersSetC = intersectionResult.common;
+            console.log(answersSetC)
+
+            // Update Sets A and B with remaining elements
+            answersSetA = intersectionResult.remainingA;
+            answersSetB = intersectionResult.remainingB;
+
+            // Draw Venn diagram
+            drawVennDiagram(answersSetA, answersSetB, answersSetC);
+
+            // Calculate compatibility percentage
+            var compatibilityPercentage = (answersSetC.length / 4) * 100;
+
+            // Display "Sisterhood Synergy Score" under the Venn diagram
+            $('#vennDiagram').parent().append('<div class="synergy-score">Sisterhood Synergy Score: ' + compatibilityPercentage.toFixed(2) + '%</div>');
+        }
+    }); 
+});
+
+// Function to draw Venn diagram
+function drawVennDiagram(namesSetA, namesSetB, namesSetC) {
+    console.log("Player 1 Answers:", namesSetA);
+    console.log("Player 2 Answers:", namesSetB);
+    console.log("Union Answers:", namesSetC);
 
 
+    var width = 960,
+        height = 500;
 
-	</script>
-</head>
-<body>
+    var svg = d3.select("#vennDiagram")
+        .attr("width", width)
+        .attr("height", height);
 
-<div class="row">
-	<div id="realresults" style='display:none;'>
-		<div class="col-md-12">
-			<div class="col-md-6">
-				<h4>My Score <b><div id="myresult" >0</div></b></h4>
-			</div>
-			<div class="col-md-6" style="text-align:right;">
-				<h4>Opponent Score<b><div id="otherresult" >0</div></b></h4>
-			</div>
-		</div>
-	</div>
-</div>
+    // Define the radius and positions for the circles
+    var radius = 200;
+    var x1 = 350, y1 = 200;
+    var x2 = 550, y2 = 200;
+    var offset = 100;
 
+    // Calculate new y-coordinates with margin
+    var newY1 = y1 + 50;
+    var newY2 = y2 + 50;
+    var newMidY = (y1 + y2) / 2 + 50;
 
-<div class="row">
-	<div class="col-md-12 text-center">
-		<div class="rules" style='display:none;'>
-			<h2>2 Players Connected <br>The game will start in 10 seconds....</h2>
-				<div class="panel panel-warning"> 
-					<div class="panel-heading"> 
-						<h3 class="panel-title">Rules</h3> 
-					</div> 
-					<div class="panel-body"> 
-						<ul style="text-align:left;">
-							<li>Each question have have 10 seconds time..</li>
-							<li>Click on the answer. Choices were disabled after one click</li>
-							<li>Four Questions</li>
-						</ul>
-					</div> 
-				</div> 
-		</div>
-	</div>
-</div>
+    // Create clip paths for each circle
+    svg.append("defs").append("clipPath")
+        .attr("id", "clipCircle1")
+        .append("circle")
+        .attr("cx", x1)
+        .attr("cy", newY1)
+        .attr("r", radius);
 
+    svg.append("defs").append("clipPath")
+        .attr("id", "clipCircle2")
+        .append("circle")
+        .attr("cx", x2)
+        .attr("cy", newY2)
+        .attr("r", radius);
 
-<div class="row started" id="realtime" style='display:none;'> 
-	<div class="question">
-		<div class="row text-center">
-		  <div class="col-md-12"><h2>
-		  <br>
-		  <p id="qst"></p>
-		  </h2></div>
-		</div>
-	</div>
+    // Draw the circles with adjusted y-coordinates
+    svg.append("circle")
+        .attr("cx", x1)
+        .attr("cy", newY1)
+        .attr("r", radius)
+        .style("fill", "brown")
+        .style("fill-opacity", ".5")
+        .attr("clip-path", "url(#clipCircle1)");
 
-	<div class="choices">
-		<div class="row">
-		  <div class="col-md-4 col-sm-6 col-md-offset-3">
-		  	<button id="btn1" value=""></button>
-		  </div>
-		  <div class="col-md-3  col-sm-6">
-		  	<button id="btn2" value=""></button>
-		  </div>
-		</div>
-		<div class="row">
-		  <div class="col-md-4 col-sm-6 col-md-offset-3">
-		  	<button id="btn3" value=""></button>
-		  </div>
-		  <div class="col-md-3 col-sm-6">
-		  	<button id="btn4" value=""></button>
-		  </div>
-		</div>
-	</div>
-</div>
+    svg.append("circle")
+        .attr("cx", x2)
+        .attr("cy", newY2)
+        .attr("r", radius)
+        .style("fill", "steelblue")
+        .style("fill-opacity", ".5")
+        .attr("clip-path", "url(#clipCircle2)");
 
-<div class="current_res_c text-center" style='display:none;'>
-<div class='alert alert-success' role='alert'>Well done! Correct Answer</div>
-</div>
+    // Display names in Set A with adjusted y-coordinates
+    svg.selectAll("text.nameA")
+        .data(namesSetA)
+        .enter().append("text")
+        .attr("x", x1 - offset)
+        .attr("y", function(_, i) {
+            return newY1 - (namesSetA.length - 1) * 10 + i * 20 + 20; // Adjust spacing and margin as needed
+        })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .style("fill", "white")
+        .text(function(d) { return d; });
 
-<div class="current_res_w text-center" style='display:none;'>
-<div class='alert alert-danger' role='alert'>Ohhhh! Wrong Answer</div>
-</div>
+    // Display names in Set B with adjusted y-coordinates
+    svg.selectAll("text.nameB")
+        .data(namesSetB)
+        .enter().append("text")
+        .attr("x", x2 + offset)
+        .attr("y", function(_, i) {
+            return newY2 - (namesSetB.length - 1) * 10 + i * 20 + 20; // Adjust spacing and margin as needed
+        })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .style("fill", "white")
+        .text(function(d) { return d; });
 
-<div class="intermediate">
-	<div id="conversation"> </div>
-</div>
+    // Display names in Set C with adjusted y-coordinates
+    svg.selectAll("text.nameC")
+        .data(namesSetC)
+        .enter().append("text")
+        .attr("x", (x1 + x2) / 2)
+        .attr("y", function(_, i) {
+            return newMidY - (namesSetC.length - 1) * 10 + i * 20 + 20; // Adjust spacing and margin as needed
+        })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .style("fill", "white")
+        .text(function(d) { return d; });
+}
 
+            
+                </script>
+    </head>
+    <body>
+    
+    <!-- Real Results Section -->
+    <div class="row">
+        <div id="realresults" style='display:none;'>
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <h4>My Score <b><div id="myresult">0</div></b></h4>
+                </div>
+                <div class="col-md-6" style="text-align:right;">
+                    <h4>Opponent Score<b><div id="otherresult">0</div></b></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Rules Section -->
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <div class="rules" style='display:none;'>
+                <div id="countdownText"><p>Waiting for both players to complete the quiz...</p></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Real-time Quiz Section -->
+    <div class="row started" id="realtime" style='display:none;'>
+        <div class="question">
+            <div class="row text-center">
+                <div class="col-md-12">
+                    <br><p id="qst"></p>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Answer Choices -->
+        <div class="choices"></div>
+    
+        <!-- Navigation Buttons -->
+        <div class="navigation">
+            <button id="prevBtn">Previous Question</button>
+            <button id="nextBtn">Next Question</button>
+            <button id="submitBtn" style="display:none;">Submit</button>
+        </div>
+    </div>
+    
+    <!-- Intermediate Section -->
+    <div class="intermediate">
+        <div id="conversation"> </div>
+    </div>
+    <div class="intermediate2">
+        <div id="conversation2"> </div>
+    </div>
+    
+    <!-- Just Start Section -->
+    <div class="just_start">
+        <div class="row text-center">
+            <p>SisMatch : Bonding Beacon <p>
+            <input type="text" id="input_user" placeholder="Enter your Sweetname..." required><br>
+            <input type="text" id="input_password" placeholder="SisterSuite Number" required><br>
+            <button class="btn btn-lg btn-start" id='btnJoin'>Hit me to start the quiz </button>
+        </div>
+    </div>
 
-
-<div class="just_start" >
-	<div class="row text-center">
-		<h2>Just Play a Real time Trivia Quiz </h2>
-		<input type="text" id="input_user" placeholder="Enter Your Username..." required ><br>
-		<button class="btn btn-lg btn-start" id='btnJoin'>Start the Game!</button>
-	</div>
-</div>
-
-
-<div id="view_result"></div>
-
-
-<div class="loading-page" style='display:none;'>
-	<div class="counter">
-		<h3>0sec</h3>
-		<hr>
-	</div>
-</div>
-
-<!--Timer-->
-
-<div id="finalresult_show" style='display:none;'>
-	<div id="finalresult">
-	Tie
-	</div>
-	<br>
-	<div>
-		<a href="http://localhost:4444">Play Again...</a>
-	</div>
-</div>
-
-
-
-
-</body>
-</html>
+    
+    <!-- Final Results Section -->
+    <div id="finalresult_show" style='display:none;'>
+        <!-- SVG element for the Venn diagram -->
+        <svg id="vennDiagram" width="960" height="500"></svg>
+        
+    </div>
+    
+    </body>
+    </html>
