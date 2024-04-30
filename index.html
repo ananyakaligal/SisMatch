@@ -231,7 +231,7 @@ socket.on('proceedToFinalResults', function () {
             drawVennDiagram(answersSetA, answersSetB, answersSetC);
 
             // Calculate compatibility percentage
-            var compatibilityPercentage = (answersSetC.length / 4) * 100;
+            var compatibilityPercentage = (answersSetC.length / 9) * 100;
 
             // Display "Sisterhood Synergy Score" under the Venn diagram
             $('#vennDiagram').parent().append('<div class="synergy-score">Sisterhood Synergy Score: ' + compatibilityPercentage.toFixed(2) + '%</div>');

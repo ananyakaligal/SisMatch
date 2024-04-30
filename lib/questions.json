@@ -1,8 +1,13 @@
-{"questions":[
-	{"question": "Favorite Fitness Activity", "choices": ["Dancing","Yoga","Swimming","Gym"]},
-	{"question": "Favorite Hobbies", "choices": ["Painting", "Photography", "Cooking", "Shopping"]},
-	{"question": "Style of Music", "choices": ["Pop", "Hip-hop", "Classical", "Alternative"]},
-	{"question": "Food Style", "choices": ["Italian", "Mexican", "Japanese", "Thai"]}
-]}
-
-
+{
+    "questions": [
+        {"question": "Favorite type of shoe?", "choices": ["Heels", "Sneakers", "Flats", "Boots"]},
+        {"question": "Favorite Disney princess?", "choices": ["Cinderella", "Belle", "Ariel", "Jasmine"]},
+        {"question": "Favorite dessert?", "choices": ["Macaroons", "Cake", "Icecream", "Cupcake"]},
+        {"question": "Dream Vacation?", "choices": ["Norway", "Thailand", "Greece", "France"]},
+        {"question": "Favorite Cuisine?", "choices": ["Indian", "Thai", "Chinese", "French"]},
+        {"question": "Celebrity Crush?", "choices": ["Chris Evans", "Robert Downy Jr", "Cillian Murphy", "Jhonny Depp"]},
+        {"question": "Favorite Hobbies", "choices": ["Painting", "Photography", "Cooking", "Shopping"]},
+        {"question": "Style of Music", "choices": ["Pop", "Hip-hop", "Classical", "Alternative"]},
+        {"question": "Food Style", "choices": ["Italian", "Mexican", "Japanese", "Thai"]}
+    ]
+}
