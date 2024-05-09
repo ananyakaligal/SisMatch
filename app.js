@@ -37,6 +37,10 @@ io.sockets.on('connection', function (socket) {
             console.log("Player 1 joined the room "+password);
             socket.emit('updatechat', 'SERVER', 'You are connected! <br> Waiting for your sister to connect...', password);
         } else {
+            if (room.players.length >= 2) {
+                // Room is full
+                socket.emit('roomFull', { message: 'Sorry, the room is already full. Please join a different room.' });
+            } else {
             room.players.push(socket);
             room.usernames.push(username);
             socket.join(password);
@@ -46,6 +50,7 @@ io.sockets.on('connection', function (socket) {
                 console.log("The game is about to start in the room"+password);
                 startGame(room);
             }
+        }
         }
     });
 
@@ -119,6 +124,19 @@ function savePlayerAnswers(password, usernames) {
             delete usernames[socket.username];
         }
         io.sockets.emit('updateusers', usernames);
+        if (socket.room && rooms[socket.room]) {
+            // Remove the socket from the room's players array
+            const index = rooms[socket.room].players.indexOf(socket);
+            if (index !== -1) {
+                rooms[socket.room].players.splice(index, 1);
+            }
+    
+            // If the room becomes empty, delete the room
+            if (rooms[socket.room].players.length === 0) {
+                delete rooms[socket.room];
+            }
+        }
+    
         socket.leave(socket.room);
     });
     

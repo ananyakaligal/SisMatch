@@ -38,6 +38,11 @@
             return girlyLifeHacks[index];
         }
 
+        socket.on('roomFull', function(data) {
+            alert(data.message); // Display the message received from the server
+            window.location = "http://localhost:5555";
+        });        
+
         socket.on('updatechat', function (username, data, input_password) {
             $('#conversation').append('<div class="glitter-text">' + data + '</div>');
             var randomGirlyLifeHack = getRandomGirlyLifeHack();
@@ -339,6 +344,7 @@ function drawVennDiagram(namesSetA, namesSetB, namesSetC) {
 </head>
 
 <body>
+    <img src="SisMatch\lib\U4U logo.png" alt="Image Description" id="topRightImage">
     <!-- Real-time Quiz Section -->
     <div class="row started" id="realtime" style='display:none;'>
         <div class="question">
