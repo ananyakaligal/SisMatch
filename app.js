@@ -43,7 +43,7 @@ io.sockets.on('connection', function (socket) {
             console.log("Player 2 joined the room "+password);
 
             if (room.players.length === 2) {
-                console.log("The game is about to start");
+                console.log("The game is about to start in the room"+password);
                 startGame(room);
             }
         }
@@ -63,49 +63,56 @@ io.sockets.on('connection', function (socket) {
     
 
     socket.on('playerSubmittedAnswers', function (data) {
-        // Increment the count of players who have submitted their answers
-        playersSubmitted++;
-    
+        var password = socket.roomPassword;
         var username = data.username;
         var answers = data.answers;
     
-        // Ensure that usernames[username] is properly initialized
-        if (!usernames[username]) {
-            usernames[username] = {}; // Initialize an empty object if it doesn't exist
+        // Ensure that usernames[username] is properly initialized for the room
+        if (!usernames[password]) {
+            usernames[password] = {}; // Initialize room if not already
         }
     
-        // Store the submitted answers for the respective player
-        usernames[username].answers = answers;
+        // Store the submitted answers for the respective player in the room object
+        if (!usernames[password][username]) {
+            usernames[password][username] = {}; // Initialize user if not already
+        }
+        usernames[password][username].answers = answers;
+    
+        // Increment the count of players who have submitted their answers for the room
+        if (!rooms[password].playersSubmitted) {
+            rooms[password].playersSubmitted = 1;
+        } else {
+            rooms[password].playersSubmitted++;
+            console.log(password + " both the players submitted");
+            console.log(rooms[password].playersSubmitted + " of room " + password);
+        }
     
         // Check if all players have submitted their answers
-        if (playersSubmitted === 2) {
-            console.log("Both players submitted answers");
+        if (rooms[password].playersSubmitted === 2) {
+            console.log("Both players submitted answers of room " + password);
     
             // Save the answers to JSON file
-            savePlayerAnswers();
+            savePlayerAnswers(password, usernames[password]);
     
             // Emit an event to notify clients that both players have submitted their answers
-            io.sockets.in(socket.roomPassword).emit('proceedToFinalResults');
-    
-            // Reset playersSubmitted count for the next round
-            playersSubmitted = 0;
-        } 
-        
-        else {
-            console.log("Waiting for the other player to answer");
+            io.sockets.in(socket.roomPassword).emit('proceedToFinalResults',password);
+        } else {
+            console.log("Waiting for the other player to answer of room " + password);
             // Emit an event to notify clients that they are waiting for the other player to submit
-            socket.emit('updatechat2', 'SERVER', 'Waiting for the other player to finish answering...',socket.roomPassword);
+            socket.emit('updatechat2', 'SERVER', 'Waiting for the other player to finish answering...', socket.roomPassword);
         }
     });
     
 
     // Function to save player answers to JSON file
-    function savePlayerAnswers() {
-        fs.writeFile("public/answers.json", JSON.stringify(usernames), function (err) {
-            if (err) throw err;
-            console.log('Player answers saved to answers.json');
-        });
-    }
+function savePlayerAnswers(password, usernames) {
+    var filename = "public/answers_" + password + ".json"; // Dynamic filename based on room password
+    fs.writeFile(filename, JSON.stringify(usernames), function (err) {
+        if (err) throw err;
+        console.log('Player answers saved to ' + filename);
+    });
+}
+
 
     socket.on('disconnect', function () {
         if (socket.username) {
@@ -116,3 +123,4 @@ io.sockets.on('connection', function (socket) {
     });
     
 });
+

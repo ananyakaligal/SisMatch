@@ -168,14 +168,14 @@
         }
 
         // Event listener for 'proceedToFinalResults' event
-        socket.on('proceedToFinalResults', function () {
+        socket.on('proceedToFinalResults', function (password) {
         // Hide the waiting message and proceed to final results
         $(".intermediate2").fadeOut('slow');
         $('#finalresult_show').show();
-        console.log("im being called, cleint");
+        console.log("Final result");
 
     // Read the answers from JSON file
-    d3.json("./answers.json", function(error, answersData) {
+    d3.json("./answers_" + password + ".json", function(error, answersData) {
         console.log("loaded")
         if (error) {
             console.error("Error loading answers.json:", error);
@@ -226,6 +226,15 @@
 
             // Display "Sisterhood Synergy Score" under the Venn diagram
             $('#vennDiagram').parent().append('<div class="synergy-score">Sisterhood Synergy Score: ' + compatibilityPercentage.toFixed(2) + '%</div>');
+        
+            // Delete the answers.json file after using it
+            fs.unlinkSync("./answers_" + password + ".json", (err) => {
+                if (err) {
+                    console.error("Error deleting answers.json:", err);
+                    return;
+                }
+                console.log("answers"+password+".json file deleted successfully");
+            });
         }
     }); 
 });
