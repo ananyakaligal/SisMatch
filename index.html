@@ -14,8 +14,9 @@
         var username, user_id, userAnswers = {};
         var questionsCount = 0;
         var currentQuestionIndex = 0;
-        var data; // Declare data variable globally
+        var data; 
         var siscode;
+
         // Array of girly life hacks
         var girlyLifeHacks = [
         "Mixing a little bit of foundation with moisturizer creates a tinted moisturizer for lighter coverage.",
@@ -30,39 +31,28 @@
         "Dusting translucent powder over your lipstick prevents smudging."
     ];
     
-
-// Function to select a random girly life hack
-function getRandomGirlyLifeHack() {
-    var index = Math.floor(Math.random() * girlyLifeHacks.length);
-    console.log(girlyLifeHacks[index]);
-    return girlyLifeHacks[index];
-}
+       // Function to select a random girly life hack
+        function getRandomGirlyLifeHack() {
+            var index = Math.floor(Math.random() * girlyLifeHacks.length);
+            console.log(girlyLifeHacks[index]);
+            return girlyLifeHacks[index];
+        }
 
         socket.on('updatechat', function (username, data, input_password) {
             $('#conversation').append('<div class="glitter-text">' + data + '</div>');
-    var randomGirlyLifeHack = getRandomGirlyLifeHack();
-    $('#conversation').append('<div class="hack-container"><div class="hack"><p>Did you know?<p></div><span>' + randomGirlyLifeHack + '</span></div>');
-    siscode = input_password;
+            var randomGirlyLifeHack = getRandomGirlyLifeHack();
+            $('#conversation').append('<div class="hack-container"><div class="hack"><p>Did you know?<p></div><span>' + randomGirlyLifeHack + '</span></div>');
         });
 
         socket.on('updatechat2', function (username, data, id) {
-            if (id === siscode) {
-                $('#conversation2').append('<br><p>' + data + '<p><br>');
-            }
-        });
-
-        socket.on('updatechat3', function (username, data, id) {
-            if (id === siscode) {
-                $('#conversation2').append('<br><p>' + data + '<p><br>');
-            }
-        });
-
-        socket.on('game', function (data) {
-            $('#realtime').append('<b>' + data + '<br>');
+            console.log(id)
+            console.log("Im waiting for thr other player to answer");
+            $('#conversation2').append('<br><p>' + data + '<p><br>');
+            
         });
 
         socket.on('sendQuestions', function (questionsData) {
-            data = questionsData; // Assign questionsData to the global data variable
+            data = questionsData;
             $(".intermediate").fadeOut('slow');
             questionsCount = data.questions.length;
             displayQuestion(currentQuestionIndex);
@@ -77,9 +67,7 @@ function getRandomGirlyLifeHack() {
         }
 
         function displayQuestion(index) {
-            $(".rules").fadeOut();
             $(".started").fadeIn('slow');
-
             $('#qst').text(data.questions[index].question);
 
             // Displaying answer options
@@ -88,17 +76,20 @@ function getRandomGirlyLifeHack() {
             for (var i = 0; i < choices.length; i++) {
                 optionsHTML += '<button class="option" data-value="' + choices[i] + '">' + choices[i] + '</button>';
             }
+
             $('.choices').html(optionsHTML);
 
             // Show/hide navigation buttons based on question index
             if (index === 0) {
                 $('#prevBtn').hide();
                 $('#nextBtn').show();
-            } else if (index === questionsCount - 1) {
+            } 
+            else if (index === questionsCount - 1) {
                 $('#prevBtn').show();
                 $('#nextBtn').hide();
                 $('#submitBtn').show(); // Display submit button for the last question
-            } else {
+            }
+            else {
                 $('#prevBtn').show();
                 $('#nextBtn').show();
                 $('#submitBtn').hide(); // Hide submit button for other questions
@@ -123,7 +114,7 @@ function getRandomGirlyLifeHack() {
             $('#btnJoin').click(function () {
                 $(".just_start").fadeOut();
                 username = $("#input_user").val();
-                var siscode=$("#input_password").val();
+                siscode=$("#input_password").val();
                 if (username != '' && siscode!='') {
                     socket.emit('addClient', username,siscode);
                     socket.emit('')
@@ -157,31 +148,31 @@ function getRandomGirlyLifeHack() {
             
                 // Notify the server that the current player has submitted their answers
                 $(".row").fadeOut();
-                console.log("Emitting playerSubmittedAnswers event"); // Add a console log to debug
+                console.log(`player ${username} has submitted the answers`); // Add a console log to debug
                 // Inside 'submitBtn' click event handler
-socket.emit('playerSubmittedAnswers', { username: username, answers: userAnswers });
+                socket.emit('playerSubmittedAnswers', { username: username, answers: userAnswers });
 
             });
         });
             
 
-            // Function to check if all questions are answered
-            function allQuestionsAnswered() {
-                // Check if all questions are answered
-                for (var i = 0; i < questionsCount; i++) {
-                    if (!userAnswers[i]) {
-                        return false; // Return false if any question is unanswered
-                    }
+        // Function to check if all questions are answered
+        function allQuestionsAnswered() {
+            // Check if all questions are answered
+            for (var i = 0; i < questionsCount; i++) {
+                if (!userAnswers[i]) {
+                    return false; // Return false if any question is unanswered
                 }
-                return true; // Return true if all questions are answered
             }
+            return true; // Return true if all questions are answered
+        }
 
-            // Event listener for 'proceedToFinalResults' event
-socket.on('proceedToFinalResults', function () {
-    // Hide the waiting message and proceed to final results
-    $(".intermediate2").fadeOut('slow');
-    $('#finalresult_show').show();
-    console.log("im being called, cleint");
+        // Event listener for 'proceedToFinalResults' event
+        socket.on('proceedToFinalResults', function () {
+        // Hide the waiting message and proceed to final results
+        $(".intermediate2").fadeOut('slow');
+        $('#finalresult_show').show();
+        console.log("im being called, cleint");
 
     // Read the answers from JSON file
     d3.json("./answers.json", function(error, answersData) {
@@ -198,7 +189,7 @@ socket.on('proceedToFinalResults', function () {
             // Iterate over each player entry in the JSON object
             for (var playerKey in answersData) {
                 if (answersData.hasOwnProperty(playerKey)) {
-                    var playerAnswers = Object.values(answersData[playerKey].answers.answers);
+                    var playerAnswers = Object.values(answersData[playerKey].answers);
                     if (answersSetA.length === 0) {
                         answersSetA = playerAnswers; // Store the first player's answers in answersSetA
                         // Log player 1 answers
@@ -334,36 +325,11 @@ function drawVennDiagram(namesSetA, namesSetB, namesSetC) {
         .style("text-anchor", "middle")
         .style("fill", "white")
         .text(function(d) { return d; });
-}
+}           
+    </script>
+</head>
 
-            
-                </script>
-    </head>
-    <body>
-    
-    <!-- Real Results Section -->
-    <div class="row">
-        <div id="realresults" style='display:none;'>
-            <div class="col-md-12">
-                <div class="col-md-6">
-                    <h4>My Score <b><div id="myresult">0</div></b></h4>
-                </div>
-                <div class="col-md-6" style="text-align:right;">
-                    <h4>Opponent Score<b><div id="otherresult">0</div></b></h4>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Rules Section -->
-    <div class="row">
-        <div class="col-md-12 text-center">
-            <div class="rules" style='display:none;'>
-                <div id="countdownText"><p>Waiting for both players to complete the quiz...</p></div>
-            </div>
-        </div>
-    </div>
-    
+<body>
     <!-- Real-time Quiz Section -->
     <div class="row started" id="realtime" style='display:none;'>
         <div class="question">
@@ -385,13 +351,6 @@ function drawVennDiagram(namesSetA, namesSetB, namesSetC) {
         </div>
     </div>
     
-    <!-- Intermediate Section -->
-    <div class="intermediate">
-        <div id="conversation"> </div>
-    </div>
-    <div class="intermediate2">
-        <div id="conversation2"> </div>
-    </div>
     
     <!-- Just Start Section -->
     <div class="just_start">
@@ -401,6 +360,14 @@ function drawVennDiagram(namesSetA, namesSetB, namesSetC) {
             <input type="text" id="input_password" placeholder="SisterSuite Number" required><br>
             <button class="btn btn-lg btn-start" id='btnJoin'>Hit me to start the quiz </button>
         </div>
+    </div>
+
+    <!-- Intermediate Section -->
+    <div class="intermediate">
+        <div id="conversation"> </div>
+    </div>
+    <div class="intermediate2">
+        <div id="conversation2"> </div>
     </div>
 
     
